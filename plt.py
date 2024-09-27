@@ -1,5 +1,5 @@
 """
-Modulo para o plot de figuras para analise de espectroscopia de absorção utilizando PLSR.
+Modulo para o plot de figuras para analise de espectroscopia
 """
 
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.model_selection import cross_validate
 
 import fig
-from age import SpectroscopyData
+from read import SpectroscopyData
 
 
 def loading_plot(data: SpectroscopyData, ncomp: int, 

@@ -2,7 +2,7 @@
 Modulo para analise de espectroscopia de absorção utilizando PCA.
 """
 import numpy as np
-from age import SpectroscopyData
+from read import SpectroscopyData
 import matplotlib.pyplot as plt
 
 def pca(abss: np.ndarray):
