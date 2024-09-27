@@ -1,3 +1,5 @@
+numpy
+matlib
 pandas
 matplotlib
 scikit-learn

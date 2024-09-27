@@ -2,10 +2,12 @@
 Modulo de preparação de dados de espectroscopia.
 """
 
-from age import SpectroscopyData
+import numpy as np
+from numpy.matlib import repmat
 from scipy.signal import savgol_coeffs
 from scipy.sparse import spdiags
-import numpy as np
+
+from read import SpectroscopyData
 
 
 def group(d1: SpectroscopyData, *other_data: SpectroscopyData) -> SpectroscopyData:
@@ -28,7 +30,8 @@ def group(d1: SpectroscopyData, *other_data: SpectroscopyData) -> SpectroscopyDa
         # Concatenar os valores de absorbância, IDs dos grupos e os nomes dos arquivos
         abss = np.concatenate((abss, data.abss))
         group_ids = np.concatenate((group_ids, i * np.ones(len(data.abss))))
-        args = np.char.add(args, f"::group_{i}")
+        # Grupos são identificados por um número, "::" é utilizado para separar os grupos
+        args = np.char.add(args,"::")
         args = np.char.add(args, data.args)
         colors = np.concatenate((colors, data.colors))
     # Vai semmpre utilizar o número de onda do primeiro grupo
@@ -39,7 +42,7 @@ def cut(data: SpectroscopyData, a: float, b: float) -> SpectroscopyData:
     Faz a restrição espectral dos dados de espectroscopia.
     """
     sel = (data.wn > a) & (data.wn < b)
-    return SpectroscopyData(data.abss[sel], data.wn[sel], data.group_ids, data.args, data.colors)
+    return SpectroscopyData(data.abss[:, sel], data.wn[sel], data.group_ids, data.args, data.colors)
 
 def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> SpectroscopyData:
     """
@@ -55,18 +58,18 @@ def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> Spectrosco
     sgcoeff = savgol_coeffs(win, order, deriv=diff)[:, None]
     
     # Replicar os coeficientes para todas as colunas de absorbância
-    sgcoeff = np.matlib.repmat(sgcoeff, 1, data.abss.shape[1])
+    sgcoeff = repmat(sgcoeff, 1, data.abss.shape[1])
     
     # Criar a matriz esparsa diagonal com os coeficientes
     diags = np.arange(-n, n + 1)
-    D = spdiags(sgcoeff, diags, data.abss.shape[1], data.abss.shape[1]).toarray()
+    d = spdiags(sgcoeff, diags, data.abss.shape[1], data.abss.shape[1]).toarray()
     
     # Zero padding nas bordas para evitar problemas de contorno
-    D[:, 0:n] = 0
-    D[:, data.abss.shape[1] - 5:data.abss.shape[1]] = 0
+    d[:, 0:n] = 0
+    d[:, data.abss.shape[1] - 5:data.abss.shape[1]] = 0
     
     # Aplicar o filtro aos dados de absorbância
-    data.abss = np.dot(data.abss, D)
+    data.abss = np.dot(data.abss, d)
     
     return data
 
