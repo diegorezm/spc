@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cross_decomposition import PLSRegression
 
-from age import SpectroscopyData
+from read import SpectroscopyData
 
 
 def loading_fig(data: SpectroscopyData, ncomp: int, title: str = "Loading Plot", xlabel: str = "Número de onda", ylabel: str = "Loading Values"):
@@ -19,6 +19,9 @@ def loading_fig(data: SpectroscopyData, ncomp: int, title: str = "Loading Plot",
       title (str): Título do gráfico.
       xlabel (str): Rótulo do eixo x.
       ylabel (str): Rótulo do eixo y.
+
+    Returns:
+      plt.Figure: O objeto da figura do gráfico.
     """
     g = data.group_ids
     r = data.abss

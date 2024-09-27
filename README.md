@@ -12,8 +12,10 @@ pip install -r requirements.txt
     - Funções para plotar os espectros
 - `pca.py`
     - Funções para realizar a analise de componentes principais (PCA)
+- `fig.py`
+    - Funções para plotar figuras para analise de espectroscopia utilizando PLSR
 - `plt.py`
-    - Funções para plotar figuras para analise de espectroscopia
+    - Funções para plotar figuras para analise de espectroscopia utilizando PLSR
 - `prep.py`
     - Funções para preparar os dados para a analise
 - `sh.py`
