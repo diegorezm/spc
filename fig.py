@@ -1,5 +1,6 @@
 """
-Modulo para criação de graficos/figuras para analise de espectroscopia de absorção.
+Modulo para criação de graficos/figuras para analise de espectroscopia de absorção
+utilizando PLSR.
 """
 
 import matplotlib.pyplot as plt
@@ -35,8 +36,11 @@ def loading_fig(data: SpectroscopyData, ncomp: int, title: str = "Loading Plot",
     offset = 0
     leng = []
     for i in range(loading.shape[1]):
+        # Plotando os carregamentos
         ax.plot(wn, offset + loading[:, i])
+        # Calculando o offset para os carregamentos
         offset += np.abs(loading[:, i].min()) + np.abs(loading[:, i].max())
+        # Adicionando o rótulo do predictor
         leng.append(f'predictor loading_{i + 1}')
     
     ax.legend(leng)
@@ -72,7 +76,9 @@ def scatter_fig(data: SpectroscopyData, a: int, b: int, ncomp: int, title: str =
     fig, ax = plt.subplots()
     unique_groups = np.unique(g)
     for i in unique_groups:
+        # Selecionando os dados para o grupo atual
         sel = g == i
+        # Plotando os pontos no gráfico de dispersão
         ax.scatter(scatter_scores[sel, a - 1], scatter_scores[sel, b - 1], color=data.colors[sel][0])
 
     ax.legend([f'Group {i}' for i in unique_groups])
@@ -102,12 +108,13 @@ def fit_fig(data: SpectroscopyData, ncomp: int, title: str = "PLSR Fit Plot", xl
       
     pls = PLSRegression(n_components=ncomp)
     pls.fit(r, g)
+
     Y_pred = pls.predict(r)
 
+    # Criando o gráfico de dispersão e o histograma, respectivamente
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12))
     unique_groups = np.unique(g)
 
-    # Scatter plot
     for i in unique_groups:
         sel = g == i
         ax1.scatter(g[sel], Y_pred[sel], color=data.colors[sel][0])
@@ -117,7 +124,7 @@ def fit_fig(data: SpectroscopyData, ncomp: int, title: str = "PLSR Fit Plot", xl
     ax1.set_xticks(unique_groups)
     ax1.set_xticklabels([f'Group {i}' for i in unique_groups])
     
-    # Histogram
+    # Histograma
     for i in unique_groups:
         sel = g == i
         ax2.hist(Y_pred[sel], alpha=0.5)
@@ -155,9 +162,12 @@ def coeff_fig(data: SpectroscopyData, ncomp: int, title: str = "PLSR Coefficient
     pls.fit(r, g)
 
     fig, ax = plt.subplots()
+
+    # Plotando os coeficientes e a linha zero
     zeroline = np.zeros_like(pls.coef_)
     ax.plot(wn, pls.coef_, wn, zeroline)
     ax.set_xlim((wn[0], wn[-1]))
+
     ax.set_xlabel(xlabel, fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
     ax.set_title(title)

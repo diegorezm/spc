@@ -1,5 +1,5 @@
 """
-Modulo para o plot de figuras para analise de espectroscopia
+Modulo para o plot de figuras para analise de espectroscopia utilizando PLSR
 """
 
 import matplotlib.pyplot as plt
