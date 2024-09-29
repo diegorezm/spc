@@ -5,13 +5,14 @@ Apenas no formato .dpt
 from dataclasses import dataclass
 from enum import Enum
 from glob import glob
+
 import numpy as np
+
 
 class FileType(Enum):
     DPT = "dpt"
     CSV = "csv"
 
-@dataclass
 @dataclass
 class SpectroscopyData:
     abss: np.ndarray
@@ -21,14 +22,24 @@ class SpectroscopyData:
     colors: np.ndarray
 
 
-def read_file(file_path: str):
-    file_contents  = np.loadtxt(file_path)
-    # x
-    wn = file_contents[:, 0]
-    # y
-    abss = file_contents[:, 1]
-    data = np.column_stack((wn, abss))
-    return np.flipud(data)
+def read_file(file_path: str, file_type: FileType = FileType.DPT) -> np.ndarray:
+    match file_type:
+        case FileType.DPT:
+            file_contents  = np.loadtxt(file_path)
+            # X
+            wn = file_contents[:, 0]
+            # Y
+            abss = file_contents[:, 1]
+            data = np.column_stack((wn, abss))
+            return np.flipud(data)
+        case FileType.CSV:
+            file_contents  = np.loadtxt(file_path, delimiter=',')
+            # X
+            wn = file_contents[:, 0]
+            # Y
+            abss = file_contents[:, 1]
+            data = np.column_stack((wn, abss))
+            return np.flipud(data)
 
 def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> SpectroscopyData:
     args = np.array(group)
@@ -38,7 +49,7 @@ def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> Spec
         raise FileNotFoundError(f"No files found in {dir_path}")
     file_contents = None
     for file_path in file_paths: 
-        file_contents = read_file(file_path)
+        file_contents = read_file(file_path, file_type)
         r.append(file_contents[:, 1])
 
     if file_contents is None:
