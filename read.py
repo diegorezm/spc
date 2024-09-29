@@ -23,23 +23,18 @@ class SpectroscopyData:
 
 
 def read_file(file_path: str, file_type: FileType = FileType.DPT) -> np.ndarray:
+    file_contents = None
     match file_type:
         case FileType.DPT:
             file_contents  = np.loadtxt(file_path)
-            # X
-            wn = file_contents[:, 0]
-            # Y
-            abss = file_contents[:, 1]
-            data = np.column_stack((wn, abss))
-            return np.flipud(data)
         case FileType.CSV:
             file_contents  = np.loadtxt(file_path, delimiter=',')
-            # X
-            wn = file_contents[:, 0]
-            # Y
-            abss = file_contents[:, 1]
-            data = np.column_stack((wn, abss))
-            return np.flipud(data)
+    # X
+    wn = file_contents[:, 0]
+    # Y
+    abss = file_contents[:, 1]
+    data = np.column_stack((wn, abss))
+    return np.flipud(data)
 
 def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> SpectroscopyData:
     args = np.array(group)

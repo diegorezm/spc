@@ -1,6 +1,6 @@
-import read
-import prep
 import pca
+import prep
+import read
 
 a = read.read_dir(dir_path="./data/saudaveis", file_type=read.FileType.DPT, group="saudaveis", color="blue")
 b = read.read_dir(dir_path="./data/cardiopatia", file_type=read.FileType.DPT, group="cardiopatia", color="red")
