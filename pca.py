@@ -110,6 +110,20 @@ def loading_fig(data: SpectroscopyData,
 def loading_plt(data: SpectroscopyData,ncomp: list[int],  title: str = "Loading Plot", 
                 xlabel: str = "Número de onda (cm^{-1})", 
                 ylabel: str = "Loading Values"):
+    """
+    Retorna um gráfico de carregamentos de previsão (loading) do PCA.
+
+    Parameters:
+      data: Dados espectroscópicos.
+      ncomp (int): Número de componentes principais a serem utilizados no PCA.
+      title (str): Título do gráfico.
+      xlabel (str): Rótulo do eixo x.
+      ylabel (str): Rótulo do eixo y.
+
+    Returns:
+      plt.Figure: O objeto da figura do gráfico.
+    """
+        
     fig = loading_fig(data, ncomp, title, xlabel, ylabel)
     plt.show()
     return fig
