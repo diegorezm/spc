@@ -1,7 +1,6 @@
 """
 Modulo de preparação de dados de espectroscopia.
 """
-
 import numpy as np
 from numpy.matlib import repmat
 from scipy.signal import savgol_coeffs
@@ -26,16 +25,17 @@ def group(d1: SpectroscopyData, *other_data: SpectroscopyData) -> SpectroscopyDa
     wn = d1.wn
     colors = d1.colors.copy()
 
-    for i,data in enumerate(other_data, start=2):
+    for i, data in enumerate(other_data, start=2):
         # Concatenar os valores de absorbância, IDs dos grupos e os nomes dos arquivos
         abss = np.concatenate((abss, data.abss))
         group_ids = np.concatenate((group_ids, i * np.ones(len(data.abss))))
         # Grupos são identificados por um número, "::" é utilizado para separar os grupos
-        args = np.char.add(args,"::")
+        args = np.char.add(args, "::")
         args = np.char.add(args, data.args)
         colors = np.concatenate((colors, data.colors))
     # Vai semmpre utilizar o número de onda do primeiro grupo
     return SpectroscopyData(abss, wn, group_ids, args, colors)
+
 
 def cut(data: SpectroscopyData, a: float, b: float) -> SpectroscopyData:
     """
@@ -44,10 +44,11 @@ def cut(data: SpectroscopyData, a: float, b: float) -> SpectroscopyData:
     sel = (data.wn > a) & (data.wn < b)
     return SpectroscopyData(data.abss[:, sel], data.wn[sel], data.group_ids, data.args, data.colors)
 
+
 def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> SpectroscopyData:
     """
     Aplica o filtro de Savitzky-Golay aos dados de espectroscopia.
-    
+
     Parametros:
         diff: int, derivada
         order: int, ordem
@@ -56,22 +57,24 @@ def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> Spectrosco
     n = int((win - 1) / 2)
     # Coeficientes de Savitzky-Golay para a derivada especificada
     sgcoeff = savgol_coeffs(win, order, deriv=diff)[:, None]
-    
+
     # Replicar os coeficientes para todas as colunas de absorbância
     sgcoeff = repmat(sgcoeff, 1, data.abss.shape[1])
-    
+
     # Criar a matriz esparsa diagonal com os coeficientes
     diags = np.arange(-n, n + 1)
-    d = spdiags(sgcoeff, diags, data.abss.shape[1], data.abss.shape[1]).toarray()
-    
+    d = spdiags(sgcoeff, diags,
+                data.abss.shape[1], data.abss.shape[1]).toarray()
+
     # Zero padding nas bordas para evitar problemas de contorno
     d[:, 0:n] = 0
     d[:, data.abss.shape[1] - 5:data.abss.shape[1]] = 0
-    
+
     # Aplicar o filtro aos dados de absorbância
     data.abss = np.dot(data.abss, d)
-    
+
     return data
+
 
 def norm2r(data: SpectroscopyData, a: float, b: float, c: float, d: float) -> SpectroscopyData:
     """
@@ -91,7 +94,7 @@ def norm2r(data: SpectroscopyData, a: float, b: float, c: float, d: float) -> Sp
     media = np.mean(r1, axis=1)
     std = np.std(r1, axis=1)
     r1 = np.divide((r1 - media[:, None]), std[:, None])
-    
+
     # Seleciona os dados dentro da segunda região
     sel = (data.wn > c) & (data.wn < d)
 
@@ -101,13 +104,14 @@ def norm2r(data: SpectroscopyData, a: float, b: float, c: float, d: float) -> Sp
     media = np.mean(r2, axis=1)
     std = np.std(r2, axis=1)
     r2 = np.divide((r2 - media[:, None]), std[:, None])
-    
+
     # Concatena os dados normalizados
     data.abss = np.column_stack((r1, r2))
     data.wn = np.vstack((wn1, wn2))
     data.wn = data.wn.reshape(-1)
-    
+
     return data
+
 
 def norm_vec(data: SpectroscopyData) -> SpectroscopyData:
     """
@@ -126,6 +130,7 @@ def norm_vec(data: SpectroscopyData) -> SpectroscopyData:
     data.abss = r / rnorm
     return data
 
+
 def snv(data: SpectroscopyData) -> SpectroscopyData:
     """
     Aplica a normalização Standard Normal Variate (SNV) aos espectros de absorbância.
@@ -137,11 +142,12 @@ def snv(data: SpectroscopyData) -> SpectroscopyData:
     data.abss = np.divide((spc - media[:, None]), std[:, None])
     return data
 
+
 def offset(data: SpectroscopyData, ini: float, fim: float) -> SpectroscopyData:
     """
     Remove o offset das regiões entre os números de onda especificados.
 
-    A função subtrai o valor mínimo do espectro na região entre os números de onda 'ini' e 'fim' 
+    A função subtrai o valor mínimo do espectro na região entre os números de onda 'ini' e 'fim'
     para cada espectro de absorbância.
 
     Parametros:
@@ -151,20 +157,21 @@ def offset(data: SpectroscopyData, ini: float, fim: float) -> SpectroscopyData:
     """
     # Seleciona a região entre ini e fim
     sel = np.logical_and(data.wn > ini, data.wn < fim)
-    
+
     # Extrai os espectros da região selecionada
     r = data.abss[:, sel]
-    
+
     # Calcula o valor mínimo para cada espectro na região selecionada
     minimo = np.min(r, axis=1).reshape(-1, 1)
-    
+
     # Cria um array com o valor mínimo replicado para subtrair de todos os pontos do espectro
     minimo_tiled = np.tile(minimo, (1, data.abss.shape[1]))
 
     # Subtrai o valor mínimo de cada espectro original
     data.abss = data.abss - minimo_tiled
-    
+
     return data
+
 
 def dsample(data: SpectroscopyData, k: int) -> SpectroscopyData:
     """
@@ -178,4 +185,6 @@ def dsample(data: SpectroscopyData, k: int) -> SpectroscopyData:
     data.wn = data.wn[::k]
     return data
 
-__all__ = ["group", "cut", "golay", "norm2r", "norm_vec", "snv", "offset", "dsample"]
+
+__all__ = ["group", "cut", "golay", "norm2r",
+           "norm_vec", "snv", "offset", "dsample"]

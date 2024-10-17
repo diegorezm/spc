@@ -13,6 +13,7 @@ class FileType(Enum):
     DPT = "dpt"
     CSV = "csv"
 
+
 @dataclass
 class SpectroscopyData:
     abss: np.ndarray
@@ -26,15 +27,16 @@ def read_file(file_path: str, file_type: FileType = FileType.DPT) -> np.ndarray:
     file_contents = None
     match file_type:
         case FileType.DPT:
-            file_contents  = np.loadtxt(file_path)
+            file_contents = np.loadtxt(file_path)
         case FileType.CSV:
-            file_contents  = np.loadtxt(file_path, delimiter=',')
+            file_contents = np.loadtxt(file_path, delimiter=',')
     # X
     wn = file_contents[:, 0]
     # Y
     abss = file_contents[:, 1]
     data = np.column_stack((wn, abss))
     return np.flipud(data)
+
 
 def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> SpectroscopyData:
     args = np.array(group)
@@ -43,7 +45,7 @@ def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> Spec
     if not file_paths:
         raise FileNotFoundError(f"No files found in {dir_path}")
     file_contents = None
-    for file_path in file_paths: 
+    for file_path in file_paths:
         file_contents = read_file(file_path, file_type)
         r.append(file_contents[:, 1])
 
@@ -51,10 +53,11 @@ def read_dir(dir_path: str, file_type: FileType, group: str, color: str) -> Spec
         raise ValueError("File contents is None")
 
     r = np.array(r)
-    return SpectroscopyData(abss=r, 
-                            wn=file_contents[:, 0], 
-                            group_ids=np.ones(len(r)).astype('i8'), 
+    return SpectroscopyData(abss=r,
+                            wn=file_contents[:, 0],
+                            group_ids=np.ones(len(r)).astype('i8'),
                             args=args,
                             colors=np.full(len(r), color))
+
 
 __all__ = ['read_dir', 'read_file', 'SpectroscopyData']
