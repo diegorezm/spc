@@ -20,15 +20,17 @@ def mplot(data: SpectroscopyData):
     plt.show()
 
 
-def mplot_peaks(data: SpectroscopyData):
+def mplot_peaks_fig(data: SpectroscopyData):
     """
-    Função para plotar o espectro médio com os picos detectados.
+    Gera o gráfico do espectro médio com os picos detectados.
+    Retorna o objeto Figure do Matplotlib e um dicionário com os picos detectados.
     """
     # Obter os IDs de grupos únicos
     unique_groups = unique(data.group_ids)
 
-    # Inicializar a figura
-    plt.figure(figsize=(10, 6))
+    # Inicializar a figura e o dicionário de picos
+    fig, ax = plt.subplots(figsize=(10, 6))
+    peaks = {}
 
     # Definir a largura para a transformação wavelet
     widths = arange(1, 10)
@@ -42,30 +44,37 @@ def mplot_peaks(data: SpectroscopyData):
         mean_spectrum = data.abss[sel, :].mean(axis=0)
 
         # Plota o espectro médio
-        plt.plot(data.wn, mean_spectrum, label=f'Grupo {group_id}')
+        ax.plot(data.wn, mean_spectrum, label=f'Grupo {group_id}')
 
         # Detecta picos no espectro médio
         peak_indices = find_peaks_cwt(mean_spectrum, widths)
         group_name = str(data.args).split('::')[int(group_id - 1)]
-        plt.text(0.05, 0.1 - unique_groups.tolist().index(group_id)*0.05,
-                 f'Grupo {group_name}: {len(peak_indices)} picos',
-                 transform=plt.gca().transAxes,
-                 fontsize=12, verticalalignment='top', color='black')
+        ax.text(0.05, 0.1 - unique_groups.tolist().index(group_id)*0.05,
+                f'Grupo {group_name}: {len(peak_indices)} picos',
+                transform=ax.transAxes, fontsize=12, verticalalignment='top', color='black')
 
-        # Plotar os picos detectados
+        # Armazenar os picos detectados e plotar
         for j in peak_indices:
-            plt.plot(data.wn[j], mean_spectrum[j], 'ro',
-                     markersize=8, label=f'Pico em {data.wn[j]:.2f} cm⁻¹')
+            peaks[(data.wn[j], mean_spectrum[j], int(group_id))] = mean_spectrum[j]
+            ax.plot(data.wn[j], mean_spectrum[j], 'ro', markersize=8)
 
     # Configurar a legenda
     legenda = str(data.args).split('::')
-    plt.legend(legenda)
+    ax.legend(legenda)
 
     # Configurações dos eixos
-    plt.xlabel('Número de onda (cm^{-1})')
-    plt.ylabel('Absorbância')
+    ax.set_xlabel('Número de onda (cm^{-1})')
+    ax.set_ylabel('Absorbância')
 
-    # Exibir o gráfico
+    # Retorna a figura e o dicionário de picos
+    return fig, peaks
+
+
+def mplot_peaks(data: SpectroscopyData):
+    """
+    Função para plotar o espectro médio com os picos detectados.
+    """
+    _, _ = mplot_peaks_fig(data)
     plt.show()
 
 
