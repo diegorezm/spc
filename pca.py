@@ -1,6 +1,7 @@
 """
 Modulo para analise de espectroscopia de absorção utilizando PCA.
 """
+
 import numpy as np
 from read import SpectroscopyData
 import matplotlib.pyplot as plt
@@ -20,15 +21,12 @@ def pca(abss: np.ndarray):
     rcov = np.cov(rmean.T)
     _, latent, coeff = np.linalg.svd(rcov)
     latent = latent.reshape(1, -1)
-    coeff = coeff.T*np.sqrt(latent)
+    coeff = coeff.T * np.sqrt(latent)
     scores = abss @ (coeff)
     return scores, coeff, np.sqrt(latent)
 
 
-def scores_fig(dados: SpectroscopyData,
-               a: int,
-               b: int,
-               title: str = "PCA Scores Plot"):
+def scores_fig(dados: SpectroscopyData, a: int, b: int, title: str = "PCA Scores Plot"):
     """
     Retorna a figura das pontuações da PCA.
 
@@ -40,7 +38,7 @@ def scores_fig(dados: SpectroscopyData,
     """
     pcadata = pca(dados.abss)
     latent = np.round(pcadata[2] / pcadata[2].sum(), 5)
-    leng = str(dados.args).split('::')
+    leng = str(dados.args).split("::")
     unique_groups = np.unique(dados.group_ids)
 
     # Criando a figura e o eixo
@@ -48,18 +46,24 @@ def scores_fig(dados: SpectroscopyData,
 
     for i in unique_groups:
         sel = dados.group_ids == i
-        ax.scatter(pcadata[0][sel, a - 1], pcadata[0][sel, b - 1],
-                   color=dados.colors[sel][0], label=f'Group {i}')
+        ax.scatter(
+            pcadata[0][sel, a - 1],
+            pcadata[0][sel, b - 1],
+            color=dados.colors[sel][0],
+            label=f"Group {i}",
+        )
 
     ax.legend(leng)
-    ax.set_xlabel(f'PC {a} ({100 * latent[0, a - 1]:.2f}%)')
-    ax.set_ylabel(f'PC {b} ({100 * latent[0, b - 1]:.2f}%)')
+    ax.set_xlabel(f"PC {a} ({100 * latent[0, a - 1]:.2f}%)")
+    ax.set_ylabel(f"PC {b} ({100 * latent[0, b - 1]:.2f}%)")
     ax.set_title(title)
 
     return fig
 
 
-def scores_plot(dados: SpectroscopyData, a: int, b: int, title: str = "PCA Scores Plot"):
+def scores_plot(
+    dados: SpectroscopyData, a: int, b: int, title: str = "PCA Scores Plot"
+):
     """
     Plota as pontuações da PCA.
 
@@ -74,11 +78,13 @@ def scores_plot(dados: SpectroscopyData, a: int, b: int, title: str = "PCA Score
     return fig
 
 
-def loading_fig(data: SpectroscopyData,
-                ncomp: list[int],
-                title: str = "Loading Plot",
-                xlabel: str = "Número de onda (cm^{-1})",
-                ylabel: str = "Loading Values"):
+def loading_fig(
+    data: SpectroscopyData,
+    ncomp: list[int],
+    title: str = "Loading Plot",
+    xlabel: str = "Número de onda (cm^{-1})",
+    ylabel: str = "Loading Values",
+):
     """
     Retorna um gráfico de carregamentos de previsão (loading) do PCA.
 
@@ -104,7 +110,7 @@ def loading_fig(data: SpectroscopyData,
     for i in ncomp:
         # Plotando os carregamentos
         plt.plot(wn, coeff[:, i])
-        lengs.append(f'Loading pc {i}')
+        lengs.append(f"Loading pc {i}")
     plt.title(title)
     plt.xlabel(xlabel)
     plt.legend(lengs)
@@ -116,9 +122,13 @@ def loading_fig(data: SpectroscopyData,
     return plt.gcf()
 
 
-def loading_plt(data: SpectroscopyData, ncomp: list[int],  title: str = "Loading Plot",
-                xlabel: str = "Número de onda (cm^{-1})",
-                ylabel: str = "Loading Values"):
+def loading_plt(
+    data: SpectroscopyData,
+    ncomp: list[int],
+    title: str = "Loading Plot",
+    xlabel: str = "Número de onda (cm^{-1})",
+    ylabel: str = "Loading Values",
+):
     """
     Retorna um gráfico de carregamentos de previsão (loading) do PCA.
 
@@ -138,4 +148,4 @@ def loading_plt(data: SpectroscopyData, ncomp: list[int],  title: str = "Loading
     return fig
 
 
-__all__ = ['pca', 'scores_plot', 'scores_fig', 'loading_fig', 'loading_plt']
+__all__ = ["pca", "scores_plot", "scores_fig", "loading_fig", "loading_plt"]

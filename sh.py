@@ -14,9 +14,9 @@ def mplot(data: SpectroscopyData):
         sel = data.group_ids == i
         plt.plot(data.wn, data.abss[sel, :].mean(0))
     legenda = str(data.args)
-    legenda = legenda.split('::')
+    legenda = legenda.split("::")
     plt.legend(legenda)
-    plt.xlabel('numero de onda (cm^{-1})')
+    plt.xlabel("numero de onda (cm^{-1})")
     plt.show()
 
 
@@ -44,27 +44,33 @@ def mplot_peaks_fig(data: SpectroscopyData):
         mean_spectrum = data.abss[sel, :].mean(axis=0)
 
         # Plota o espectro médio
-        ax.plot(data.wn, mean_spectrum, label=f'Grupo {group_id}')
+        ax.plot(data.wn, mean_spectrum, label=f"Grupo {group_id}")
 
         # Detecta picos no espectro médio
         peak_indices = find_peaks_cwt(mean_spectrum, widths)
-        group_name = str(data.args).split('::')[int(group_id - 1)]
-        ax.text(0.05, 0.1 - unique_groups.tolist().index(group_id)*0.05,
-                f'Grupo {group_name}: {len(peak_indices)} picos',
-                transform=ax.transAxes, fontsize=12, verticalalignment='top', color='black')
+        group_name = str(data.args).split("::")[int(group_id - 1)]
+        ax.text(
+            0.05,
+            0.1 - unique_groups.tolist().index(group_id) * 0.05,
+            f"Grupo {group_name}: {len(peak_indices)} picos",
+            transform=ax.transAxes,
+            fontsize=12,
+            verticalalignment="top",
+            color="black",
+        )
 
         # Armazenar os picos detectados e plotar
         for j in peak_indices:
             peaks[(data.wn[j], mean_spectrum[j], int(group_id))] = mean_spectrum[j]
-            ax.plot(data.wn[j], mean_spectrum[j], 'ro', markersize=8)
+            ax.plot(data.wn[j], mean_spectrum[j], "ro", markersize=8)
 
     # Configurar a legenda
-    legenda = str(data.args).split('::')
+    legenda = str(data.args).split("::")
     ax.legend(legenda)
 
     # Configurações dos eixos
-    ax.set_xlabel('Número de onda (cm^{-1})')
-    ax.set_ylabel('Absorbância')
+    ax.set_xlabel("Número de onda (cm^{-1})")
+    ax.set_ylabel("Absorbância")
 
     # Retorna a figura e o dicionário de picos
     return fig, peaks
@@ -90,9 +96,9 @@ def aplot(data: SpectroscopyData):
         for j in range(d.shape[0]):
             plt.plot(data.wn, d[j, :], color=color)
     legenda = str(data.args)
-    legenda = legenda.split('::')
+    legenda = legenda.split("::")
     plt.legend(legenda)
-    plt.xlabel('numero de onda (cm^{-1})')
+    plt.xlabel("numero de onda (cm^{-1})")
     plt.show()
 
 

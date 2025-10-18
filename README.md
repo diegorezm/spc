@@ -1,5 +1,16 @@
 # Analise de espectros de Infravermelho por Transformada de Fourier (FTIR)
+
 ## Setup
+- Crie o `virtual environment`
+```bash
+python3 -m venv venv
+```
+
+- Source (Linux)
+```bash
+source ./venv/bin/activate
+```
+
 - Instalar as dependências
 ```bash
 pip install -r requirements.txt
@@ -20,6 +31,7 @@ pip install -r requirements.txt
     - Funções para preparar os dados para a analise
 - `sh.py`
     - Funções para plotar os espectros médios e todos os espectros
+
 ## Creditos
 
 - https://github.com/tmpereira/spc
