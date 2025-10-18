@@ -1,4 +1,5 @@
 spc_old
+venv
 .venv
 data
 __pycache__
