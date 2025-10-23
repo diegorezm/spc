@@ -1,6 +1,7 @@
 """
 Modulo de preparação de dados de espectroscopia.
 """
+
 import numpy as np
 from numpy.matlib import repmat
 from scipy.signal import savgol_coeffs
@@ -42,7 +43,9 @@ def cut(data: SpectroscopyData, a: float, b: float) -> SpectroscopyData:
     Faz a restrição espectral dos dados de espectroscopia.
     """
     sel = (data.wn > a) & (data.wn < b)
-    return SpectroscopyData(data.abss[:, sel], data.wn[sel], data.group_ids, data.args, data.colors)
+    return SpectroscopyData(
+        data.abss[:, sel], data.wn[sel], data.group_ids, data.args, data.colors
+    )
 
 
 def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> SpectroscopyData:
@@ -63,12 +66,11 @@ def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> Spectrosco
 
     # Criar a matriz esparsa diagonal com os coeficientes
     diags = np.arange(-n, n + 1)
-    d = spdiags(sgcoeff, diags,
-                data.abss.shape[1], data.abss.shape[1]).toarray()
+    d = spdiags(sgcoeff, diags, data.abss.shape[1], data.abss.shape[1]).toarray()
 
     # Zero padding nas bordas para evitar problemas de contorno
     d[:, 0:n] = 0
-    d[:, data.abss.shape[1] - 5:data.abss.shape[1]] = 0
+    d[:, data.abss.shape[1] - 5 : data.abss.shape[1]] = 0
 
     # Aplicar o filtro aos dados de absorbância
     data.abss = np.dot(data.abss, d)
@@ -76,7 +78,9 @@ def golay(data: SpectroscopyData, diff: int, order: int, win: int) -> Spectrosco
     return data
 
 
-def norm2r(data: SpectroscopyData, a: float, b: float, c: float, d: float) -> SpectroscopyData:
+def norm2r(
+    data: SpectroscopyData, a: float, b: float, c: float, d: float
+) -> SpectroscopyData:
     """
     Normaliza os dados de espectroscopia em duas regiões.
 
@@ -186,5 +190,4 @@ def dsample(data: SpectroscopyData, k: int) -> SpectroscopyData:
     return data
 
 
-__all__ = ["group", "cut", "golay", "norm2r",
-           "norm_vec", "snv", "offset", "dsample"]
+__all__ = ["group", "cut", "golay", "norm2r", "norm_vec", "snv", "offset", "dsample"]

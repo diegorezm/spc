@@ -13,9 +13,11 @@ def mplot(data: SpectroscopyData):
     for i in unique_groups:
         sel = data.group_ids == i
         plt.plot(data.wn, data.abss[sel, :].mean(0))
-    legenda = str(data.args)
+
+    legenda = str(data.args).strip()
     legenda = legenda.split("::")
     plt.legend(legenda)
+
     plt.xlabel("numero de onda (cm^{-1})")
     plt.show()
 
@@ -24,12 +26,24 @@ def mplot_peaks_fig(data: SpectroscopyData):
     """
     Gera o gráfico do espectro médio com os picos detectados.
     Retorna o objeto Figure do Matplotlib e um dicionário com os picos detectados.
+    O dicionário de picos é organizado da seguinte forma:
+
+    {
+        g_id: [(x,y)]
+    }
+
+    Ou seja, uma lsita de picos por id de grupo.
     """
     # Obter os IDs de grupos únicos
     unique_groups = unique(data.group_ids)
 
     # Inicializar a figura e o dicionário de picos
     fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Este objeto é organizado da seguinte maneira:
+    # {
+    #   g_id: [(x,y)]
+    # }
     peaks = {}
 
     # Definir a largura para a transformação wavelet
@@ -49,6 +63,7 @@ def mplot_peaks_fig(data: SpectroscopyData):
         # Detecta picos no espectro médio
         peak_indices = find_peaks_cwt(mean_spectrum, widths)
         group_name = str(data.args).split("::")[int(group_id - 1)]
+
         ax.text(
             0.05,
             0.1 - unique_groups.tolist().index(group_id) * 0.05,
@@ -58,16 +73,28 @@ def mplot_peaks_fig(data: SpectroscopyData):
             verticalalignment="top",
             color="black",
         )
+        peaks[int(group_id)] = [
+            (float(data.wn[j]), float(mean_spectrum[j])) for j in peak_indices
+        ]
 
-        # Armazenar os picos detectados e plotar
-        for j in peak_indices:
-            peaks[(data.wn[j], mean_spectrum[j], int(group_id))] = mean_spectrum[j]
-            ax.plot(data.wn[j], mean_spectrum[j], "ro", markersize=8)
+        ax.plot(
+            data.wn[peak_indices],
+            mean_spectrum[peak_indices],
+            "ro",
+            markersize=2,
+        )
 
-    # Configurar a legenda
+    # Configurar a legenda (mostra apenas as linhas, não os pontos dos picos)
+    handles, _ = ax.get_legend_handles_labels()
+    # Filtra: pega apenas os handles que são linhas e não marcadores ('Line2D' com linestyle diferente de 'None')
+    handles = [
+        h for h in handles if getattr(h, "get_linestyle", lambda: "-")() != "None"
+    ]
+
     legenda = str(data.args).split("::")
-    ax.legend(legenda)
-
+    # Se houver mais rótulos que linhas, limita para evitar IndexError
+    legenda = legenda[: len(handles)]
+    ax.legend(handles, legenda)
     # Configurações dos eixos
     ax.set_xlabel("Número de onda (cm^{-1})")
     ax.set_ylabel("Absorbância")
