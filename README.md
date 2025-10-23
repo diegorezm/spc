@@ -1,5 +1,9 @@
 # Analise de espectros de Infravermelho por Transformada de Fourier (FTIR)
 
+## Creditos
+
+- https://github.com/tmpereira/spc
+
 ## Setup
 - Crie o `virtual environment`
 ```bash
@@ -32,6 +36,3 @@ pip install -r requirements.txt
 - `sh.py`
     - Funções para plotar os espectros médios e todos os espectros
 
-## Creditos
-
-- https://github.com/tmpereira/spc
